@@ -4,7 +4,7 @@ A front-end for a database that allows users to work with students, class
 projects, and the grades students receive in class projects.
 """
 
-from flask import Flask
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -42,12 +42,41 @@ def make_new_student(first_name, last_name, github):
     Given a first name, last name, and GitHub account, add student to the
     database and print a confirmation message.
     """
-    pass
+    QUERY = """
+        INSERT INTO students (first_name, last_name, github)
+            VALUES (:first_name, :last_name, :github)
+        """
+
+    db.session.execute(QUERY, {'first_name': first_name, 
+                                'last_name': last_name, 
+                                'github': github})
+
+    db.session.commit()
+
+    print(f"Successfully added student: {first_name} {last_name}")
+
 
 
 def get_project_by_title(title):
     """Given a project title, print information about the project."""
-    pass
+
+    # description = request.args.get('description')
+    # max_grade = request.args.get('max_grade')
+
+
+    QUERY = """
+        SELECT title, description, max_grade
+        FROM projects
+        WHERE title = :title
+        """
+
+    cursor = db.session.execute(QUERY, {'title': title})
+
+    row = cursor.fetchone()
+
+    db.session.commit()
+
+    print(f"Here is the information about this project: {row[0]}, {row[1]}, {row[2]}.")
 
 
 def get_grade_by_github_title(github, title):
